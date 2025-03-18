@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Register</title>
+  <style>
+    body { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      font-family: Arial, sans-serif; 
+      background: #f0f0f0; 
+      margin: 0;
+    }
+    .container { 
+      background: white; 
+      padding: 20px; 
+      border-radius: 8px; 
+      width: 300px; 
+      box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+      text-align: center;
+    }
+    input, button { 
+      width: 100%; 
+      padding: 10px; 
+      margin: 10px 0; 
+      border-radius: 5px; 
+      border: 1px solid #ccc; 
+    }
+    .show-password { 
+      display: flex; 
+      align-items: center; 
+      gap: 5px; 
+      justify-content: center;
+    }
+    .error { color: red; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Register</h2>
+    <input type="text" id="regUsername" placeholder="Username" required>
+    <input type="password" id="regPassword" placeholder="Password" required>
+    <div class="show-password">
+      <input type="checkbox" id="toggleRegPassword" onclick="toggleRegPassword()"> Show Password
+    </div>
+    <button onclick="register()">Register</button>
+    <p id="error" class="error"></p>
+  </div>
+
+  <script>
+    function toggleRegPassword() {
+      const pwdInput = document.getElementById('regPassword');
+      pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
+    }
+    
+    function register() {
+      const username = document.getElementById('regUsername').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const errorEl = document.getElementById('error');
+      
+      // Password requirements: at least 8 chars, one uppercase, one lowercase, one special character
+      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+      
+      if (!username || !password) {
+        errorEl.textContent = "Please fill in all fields.";
+        return;
+      }
+      
+      if (!passwordPattern.test(password)) {
+        errorEl.textContent = "Password must be 8+ characters, include upper & lower case letters, and a special character.";
+        return;
+      }
+      
+      // Save credentials to LocalStorage
+      localStorage.setItem('username', username);
+      localStorage.setItem('password', password);
+      
+      alert("Registration successful!");
+      window.location.href = "register.html";
+    }
+  </script>
+</body>
+</html>

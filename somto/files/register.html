@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register to Hesed website</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f8ff; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 300px; }
+    input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+    button { background: #28a745; color: white; border: none; }
+    label { font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Register</h2>
+  <input type="text" id="username" placeholder="Username" required>
+  <input type="password" id="password" placeholder="Password" required>
+  <label><input type="checkbox" onclick="togglePassword()"> Show Password</label>
+  <button onclick="register()">Register</button>
+  <p>Already have an account? <a href="login.html">Login here</a></p>
+</div>
+
+<script>
+// Register function without affecting existing data
+function register() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (!username || !password) {
+    alert('Please fill in both fields!');
+    return;
+  }
+
+  const users = JSON.parse(localStorage.getItem('users')) || {};
+  if (users[username]) {
+    alert('Username already taken! Please choose another one.');
+    return;
+  }
+
+  users[username] = { username, password, userData: [], isPaid: false }; // Maintain structure
+  localStorage.setItem('users', JSON.stringify(users));
+  alert('Registration successful! Please login now.');
+  window.location.href = 'login.html';
+}
+
+// Show password function
+function togglePassword() {
+  const passwordField = document.getElementById('password');
+  passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+

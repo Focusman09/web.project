@@ -1,0 +1,13 @@
+S/N	steps IN TINCAN 		11111112	11111113
+1	Vehicle Inspection 			
+2	DISCHARGE 			
+3	Terminal Tally 			
+4	Custom UNLOOK			
+5	BL UPDATE SINGL			
+6	Proforma			
+7	POF Payment			
+8	Cashier			
+9	Print TDO			
+10	Buffer  (Driver or Supervisor)			
+11	Buffer (Releasing Staff)			
+12	Gate pass			

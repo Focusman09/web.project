@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Secure Payment Dashboard</title>
+<style>
+  body { font-family: Arial; padding: 20px; }
+  .admin-panel { display: none; margin-top: 20px; }
+  .user-dashboard { margin-top: 20px; }
+  .countdown { color: red; }
+</style>
+</head>
+<body>
+
+<h1>Welcome, <span id="usernameDisplay"></span></h1>
+
+<div id="paymentStatus"></div>
+
+<div class="admin-panel" id="adminPanel">
+  <h2>Admin Control</h2>
+  <div id="allUsersData"></div>
+</div>
+
+<div class="user-dashboard" id="userDashboard">
+  <h2>Your Data</h2>
+  <div id="userDataTable"></div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+  const users = JSON.parse(localStorage.getItem('users')) || {};
+  const loggedInEmail = localStorage.getItem('loggedInUser');
+  const currentUser = users[loggedInEmail];
+
+  const usernameDisplay = document.getElementById('usernameDisplay');
+  const paymentStatus = document.getElementById('paymentStatus');
+  const adminPanel = document.getElementById('adminPanel');
+  const allUsersData = document.getElementById('allUsersData');
+  const userDashboard = document.getElementById('userDashboard');
+  const userDataTable = document.getElementById('userDataTable');
+
+  if (!currentUser) {
+    alert('Please login to continue.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  usernameDisplay.textContent = currentUser.username;
+
+  if (currentUser.isAdmin) {
+    // Show admin panel
+    adminPanel.style.display = 'block';
+    displayAllUsersData(users);
+  } else {
+    // Show user dashboard
+    displayUserData(currentUser);
+    handlePaymentStatus(currentUser);
+  }
+
+  // Display all user data for admin
+  function displayAllUsersData(users) {
+    allUsersData.innerHTML = '<h3>All User Payments</h3>';
+    Object.keys(users).forEach(email => {
+      if (!users[email].isAdmin) {
+        const user = users[email];
+        allUsersData.innerHTML += `
+          <p>${email} - Paid: ${user.isPaid ? 'Yes' : 'No'} 
+          (Until: ${user.paidUntil || 'N/A'}) 
+          [<button onclick="confirmPayment('${email}')">Confirm Payment</button>]</p>
+        `;
+      }
+    });
+  }
+
+  // Display logged-in user's data
+  function displayUserData(user) {
+    const data = user.userData || [];
+    userDataTable.innerHTML = data.length > 0 ? data.map((d, i) => `<p>${i + 1}. ${JSON.stringify(d)}</p>`).join('') : '<p>No data found.</p>';
+  }
+
+  // Handle Payment Status and Countdown
+  function handlePaymentStatus(user) {
+    if (user.isPaid && new Date(user.paidUntil) > new Date()) {
+      const countdownEl = document.createElement('p');
+      countdownEl.className = 'countdown';
+      paymentStatus.appendChild(countdownEl);
+      startCountdown(user.paidUntil, countdownEl, user.paymentOption);
+    } else if (user.isPaid) {
+      paymentStatus.innerHTML = `<p>Payment expired. Please renew.</p>`;
+      if (user.paymentOption === 'Card') {
+        paymentStatus.innerHTML += `<button onclick="autoPayment('${loggedInEmail}')">Automatic Payment</button>`;
+      } else {
+        paymentStatus.innerHTML += `<p>Please contact admin for ${user.paymentOption} payment renewal.</p>`;
+      }
+    } else {
+      paymentStatus.innerHTML = `<p>Payment pending. Contact admin.</p>`;
+    }
+  }
+
+  // Countdown Timer Function
+  function startCountdown(date, element, method) {
+    const endTime = new Date(date).getTime();
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = endTime - now;
+      if (distance < 0) {
+        clearInterval(timer);
+        element.innerHTML = `Payment period expired.`;
+        if (method === 'Card') {
+          paymentStatus.innerHTML += `<button onclick="autoPayment('${loggedInEmail}')">Automatic Payment</button>`;
+        } else {
+          paymentStatus.innerHTML += `<p>Please contact admin to renew via ${method}.</p>`;
+        }
+        return;
+      }
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      element.innerHTML = `Payment valid for: ${days}d ${hours}h ${minutes}m`;
+    }, 1000);
+  }
+});
+
+// Admin Payment Confirmation (global function to be called from inline button)
+function confirmPayment(email) {
+  const users = JSON.parse(localStorage.getItem('users')) || {};
+  const user = users[email];
+  if (user) {
+    user.isPaid = true;
+    const durationDays = 30; // 30 days valid
+    user.paidUntil = new Date(new Date().getTime() + durationDays * 24 * 60 * 60 * 1000).toISOString();
+    localStorage.setItem('users', JSON.stringify(users));
+    alert(`Payment confirmed for ${email} until ${user.paidUntil}`);
+    location.reload();
+  }
+}
+
+// Auto Payment Simulation
+function autoPayment(email) {
+  alert('Auto-payment successful. Payment renewed for 30 days.');
+  confirmPayment(email);
+}
+
+</script>
+</body>
+</html>
