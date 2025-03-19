@@ -85,53 +85,90 @@
 </div>
 
 <script>
-const username = localStorage.getItem('loggedInUser');
-if (!username) {
-  alert('Please log in first!');
-  window.location.href = 'login.html';
-}
-
-document.getElementById('username').innerText = username;
-const users = JSON.parse(localStorage.getItem('users')) || {};
-const user = users[username] || { userData: [], isPaid: false };
-
-document.getElementById('paymentStatus').innerText = user.isPaid ? 'Paid' : 'Pending';
-
-function openPaymentOptions() {
-  document.getElementById('paymentOptions').classList.remove('hidden');
-  document.getElementById('paymentMethod').addEventListener('change', function () {
-    document.getElementById('bankDetails').classList.toggle('hidden', this.value !== 'Bank Transfer');
-    document.getElementById('cardDetails').classList.toggle('hidden', this.value !== 'Card');
-  });
-}
-
-function confirmPayment() {
-  const proof = document.getElementById('paymentProof').files[0];
-  if (!proof) {
-    alert('Please upload proof of payment!');
-    return;
+document.addEventListener("DOMContentLoaded", function () {
+  const username = localStorage.getItem('loggedInUser');
+  if (!username) {
+    alert('Please log in first!');
+    window.location.href = 'login.html';
   }
-  document.getElementById('paymentMessage').innerText = 'Your payment is under review';
-  setTimeout(() => {
-    document.getElementById('paymentMessage').innerText = 'Your payment has been confirmed ✅';
-    setTimeout(() => {
-      const submitBtn = document.createElement('button');
-      submitBtn.innerText = 'Submit';
-      submitBtn.onclick = function() {
-        window.location.href = 'thankyou.html';
-        setTimeout(() => { window.location.href = 'dashboard.html'; }, 4000);
-      };
-      document.getElementById('paymentOptions').appendChild(submitBtn);
-    }, 2000);
-  }, 3000);
-}
 
-function copyAccount() {
-  navigator.clipboard.writeText('6312412879');
-  alert('Account number copied!');
-}
+  document.getElementById('username').innerText = username;
+  const users = JSON.parse(localStorage.getItem('users')) || {};
+  const user = users[username] || { userData: [], isPaid: false };
+
+  document.getElementById('paymentStatus').innerText = user.isPaid ? 'Paid' : 'Pending';
+
+  function openPaymentOptions() {
+    document.getElementById('paymentOptions').classList.remove('hidden');
+    document.getElementById('paymentMethod').addEventListener('change', function () {
+      document.getElementById('bankDetails').classList.toggle('hidden', this.value !== 'Bank Transfer');
+      document.getElementById('cardDetails').classList.toggle('hidden', this.value !== 'Card');
+    });
+  }
+
+  function confirmPayment() {
+    const proof = document.getElementById('paymentProof').files[0];
+    if (!proof) {
+      alert('Please upload proof of payment!');
+      return;
+    }
+    document.getElementById('paymentMessage').innerText = 'Your payment is under review';
+    setTimeout(() => {
+      document.getElementById('paymentMessage').innerText = 'Your payment has been confirmed ✅';
+      setTimeout(() => {
+        const submitBtn = document.createElement('button');
+        submitBtn.innerText = 'Submit';
+        submitBtn.onclick = function() {
+          window.location.href = 'thankyou.html';
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 4000);
+        };
+        document.getElementById('paymentOptions').appendChild(submitBtn);
+      }, 2000);
+    }, 3000);
+  }
+
+  function copyAccount() {
+    navigator.clipboard.writeText('6312412879');
+    alert('Account number copied!');
+  }
+
+  function addData() {
+    const firm = document.getElementById('firm').value;
+    const person = document.getElementById('person').value;
+    const nation = document.getElementById('nation').value;
+    const phone = document.getElementById('phone').value;
+    if (!firm || !person || !nation || !phone) {
+      alert("All fields must be filled out!");
+      return;
+    }
+
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+      <td>${firm}</td>
+      <td>${person}</td>
+      <td>${nation}</td>
+      <td>${phone}</td>
+      <td>
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn" onclick="this.parentElement.parentElement.remove()">Delete</button>
+      </td>
+    `;
+    document.getElementById('dataList').appendChild(newRow);
+
+    document.getElementById('firm').value = "";
+    document.getElementById('person').value = "";
+    document.getElementById('nation').value = "";
+    document.getElementById('phone').value = "";
+  }
+
+  window.addData = addData;
+  window.openPaymentOptions = openPaymentOptions;
+  window.confirmPayment = confirmPayment;
+  window.copyAccount = copyAccount;
+});
 </script>
 
 </body>
 </html>
+
 
