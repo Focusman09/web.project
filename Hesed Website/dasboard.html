@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
+    input, select { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+    button { padding: 8px; margin: 5px 0; width: auto; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .actions button { width: auto; margin-right: 5px; }
+    .data-entry { padding: 10px; border: 1px solid #ccc; margin: 10px 0; border-radius: 5px; background: #f9f9f9; }
+    .hidden { display: none; }
+    .copy-btn, .small-btn { background: #28a745; padding: 5px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Welcome, <span id="username"></span>!</h2>
+
+  <h3>Enter Company Details</h3>
+  <input type="text" id="firm" placeholder="Firm Name">
+  <input type="text" id="person" placeholder="Person to Contact">
+  <input type="text" id="nation" placeholder="Nation">
+  <input type="tel" id="phone" placeholder="Phone">
+  <button onclick="addData()">Add Entry</button>
+
+  <h3>Your Entries</h3>
+  <div id="dataList"></div>
+
+  <h3>Payment Section</h3>
+  <p>Status: <span id="paymentStatus"></span></p>
+  <button onclick="openPaymentOptions()">Make Payment</button>
+
+  <div id="paymentOptions" class="hidden">
+    <h4>Select Duration</h4>
+    <select id="durationSelect">
+      <option value="647.36">10 Months - $647.36</option>
+      <option value="500.00">7 Months - $500.00</option>
+      <option value="350.00">5 Months - $350.00</option>
+      <option value="210.00">3 Months - $210.00</option>
+      <option value="100.00">1 Month - $100.00</option>
+    </select>
+
+    <h4>Select Payment Method</h4>
+    <select id="paymentMethod">
+      <option value="Bank Transfer">Bank Transfer</option>
+      <option value="Card">Card</option>
+      <option value="Online Payment">Online Payment</option>
+    </select>
+
+    <div id="bankDetails" class="hidden">
+      <p>Account Number: 6312412879 <button class="copy-btn" onclick="copyAccount()">Copy</button></p>
+      <p>Bank: Fidelity Bank</p>
+      <p>Account Name: Hesed Agbadu Oghenakhwami</p>
+    </div>
+
+    <div id="cardDetails" class="hidden">
+      <input type="text" id="cardNumber" placeholder="Card Number">
+      <input type="text" id="expiryDate" placeholder="Expiration Date">
+      <input type="text" id="cvv" placeholder="CVV">
+    </div>
+
+    <h4>Upload Proof of Transfer</h4>
+    <input type="file" id="paymentProof">
+    <button onclick="confirmPayment()">Submit Payment</button>
+  </div>
+
+  <button class="small-btn" onclick="logout()">Logout</button>
+</div>
+
+<script>
+const username = localStorage.getItem('loggedInUser');
+const users = JSON.parse(localStorage.getItem('users')) || {};
+const user = users[username] || { userData: [], isPaid: false };
+localStorage.setItem('users', JSON.stringify(users));
+
+if (!user) {
+  alert('Please login first!');
+  window.location.href = 'login.html';
+}
+
+document.getElementById('username').innerText = username;
+document.getElementById('paymentStatus').innerText = user.isPaid ? 'Paid' : 'Pending';
+
+function openPaymentOptions() {
+  document.getElementById('paymentOptions').classList.remove('hidden');
+  document.getElementById('paymentMethod').addEventListener('change', function () {
+    document.getElementById('bankDetails').classList.toggle('hidden', this.value !== 'Bank Transfer');
+    document.getElementById('cardDetails').classList.toggle('hidden', this.value !== 'Card');
+  });
+}
+
+function confirmPayment() {
+  const method = document.getElementById('paymentMethod').value;
+  const proof = document.getElementById('paymentProof').files[0];
+  
+  if (method === 'Bank Transfer' && !proof) {
+    alert('Please upload payment proof.');
+    return;
+  }
+
+  user.isPaid = true;
+  localStorage.setItem('users', JSON.stringify(users));
+  alert('Payment submitted! AI will verify it shortly.');
+  window.location.href = 'thankyou.html';
+}
+
+function copyAccount() {
+  navigator.clipboard.writeText('6312412879');
+  alert('Account number copied!');
+}
+
+function logout() {
+  localStorage.removeItem('loggedInUser');
+  window.location.href = 'login.html';
+}
+</script>
+
+</body>
+</html>
+
+
+
